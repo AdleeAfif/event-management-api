@@ -24,7 +24,11 @@ func getDefault(context *gin.Context) {
 }
 
 func getEvents(context *gin.Context) {
-	events := models.GetAllEvents()
+	events, err := models.GetAllEvents()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get events"})
+		return
+	}
 	context.JSON(http.StatusOK, events)
 }
 
@@ -33,14 +37,19 @@ func createEvent(context *gin.Context) {
 	err := context.ShouldBindJSON(&event)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Wrong event input format. Please check the format and try again."})
 		return
 	}
 
 	event.ID = 1
 	event.UserId = 1
 
-	event.Save()
+	err = event.Save()
 
-	context.JSON(http.StatusCreated, gin.H{"event": event})
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create event"})
+		return
+	}
+
+	context.JSON(http.StatusCreated, gin.H{"message": "Event created successfully", "event": event})
 }

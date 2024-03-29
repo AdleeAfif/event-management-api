@@ -1,9 +1,12 @@
 package models
 
-import "time"
+import (
+	"project/event-management-api/db"
+	"time"
+)
 
 type Event struct {
-	ID          int
+	ID          int64
 	Name        string    `binding:"required"`
 	Description string    `binding:"required"`
 	Location    string    `binding:"required"`
@@ -11,12 +14,48 @@ type Event struct {
 	UserId      int
 }
 
-var events = []Event{}
+func (e Event) Save() error {
+	query := `INSERT INTO events (name, description, location, dateTime, userId) 
+	VALUES (?, ?, ?, ?, ?)` // To prevent sql injection use ? instead of %s
 
-func (e Event) Save() {
-	events = append(events, e)
+	stmnt, err := db.DB.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+	defer stmnt.Close()
+	result, err := stmnt.Exec(e.Name, e.Description, e.Location, e.DateTime, e.UserId)
+
+	if err != nil {
+		return err
+	}
+
+	id, _ := result.LastInsertId()
+	e.ID = id
+
+	return nil
 }
 
-func GetAllEvents() []Event {
-	return events
+func GetAllEvents() ([]Event, error) {
+
+	query := "SELECT * FROM events"
+	rows, err := db.DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var events []Event
+
+	for rows.Next() {
+		var event Event
+		if err := rows.Scan(&event.ID, &event.Name, &event.Description, &event.Location, &event.DateTime, &event.UserId); err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
 }
