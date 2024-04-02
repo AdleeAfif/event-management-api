@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"project/event-management-api/models"
+	"project/event-management-api/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -44,5 +45,12 @@ func Login(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Login successful"})
+	token, err := utils.GenerateToken(user.Email, user.ID)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Login successful", "token": token})
 }
