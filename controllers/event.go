@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"project/event-management-api/models"
+	"project/event-management-api/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -36,16 +37,29 @@ func GetEvent(context *gin.Context) {
 }
 
 func CreateEvent(context *gin.Context) {
+	token := context.Request.Header.Get("Authorization")
+
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Please login first"})
+		return
+	}
+
+	userId, err := utils.ValidateToken(token)
+
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
 	var event models.Event
-	err := context.ShouldBindJSON(&event)
+	err = context.ShouldBindJSON(&event)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Wrong event input format. Please check the format and try again."})
 		return
 	}
 
-	event.ID = 1
-	event.UserId = 1
+	event.UserId = userId
 
 	err = event.Save()
 
