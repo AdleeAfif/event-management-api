@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 	"project/event-management-api/models"
-	"project/event-management-api/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -37,27 +36,15 @@ func GetEvent(context *gin.Context) {
 }
 
 func CreateEvent(context *gin.Context) {
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "Please login first"})
-		return
-	}
-
-	userId, err := utils.ValidateToken(token)
-
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
 	var event models.Event
-	err = context.ShouldBindJSON(&event)
+	err := context.ShouldBindJSON(&event)
 
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Wrong event input format. Please check the format and try again."})
 		return
 	}
+
+	userId := context.GetInt64("userId")
 
 	event.UserId = userId
 
@@ -79,10 +66,16 @@ func UpdateEvent(context *gin.Context) {
 		return
 	}
 
-	_, err = models.GetEventByID(eventId)
+	userId := context.GetInt64("userId")
+	event, err := models.GetEventByID(eventId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get event"})
+		return
+	}
+
+	if event.UserId != userId {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You are not authorized to update this event"})
 		return
 	}
 
@@ -113,10 +106,16 @@ func DeleteEvent(context *gin.Context) {
 		return
 	}
 
+	userId := context.GetInt64("userId")
 	event, err := models.GetEventByID(eventId)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get event"})
+		return
+	}
+
+	if event.UserId != userId {
+		context.JSON(http.StatusForbidden, gin.H{"error": "You are not authorized to delete this event"})
 		return
 	}
 

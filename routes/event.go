@@ -2,6 +2,7 @@ package routes
 
 import (
 	"project/event-management-api/controllers"
+	"project/event-management-api/middlewares"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +10,10 @@ import (
 func EventRoutes(server *gin.Engine) {
 	server.GET("/events", controllers.GetEvents)
 	server.GET("/events/:id", controllers.GetEvent)
-	server.POST("/events", controllers.CreateEvent)
-	server.PUT("/events/:id", controllers.UpdateEvent)
-	server.DELETE("/events/:id", controllers.DeleteEvent)
+
+	authenticated := server.Group("/")
+	authenticated.Use(middlewares.Authenticate)
+	authenticated.POST("/events", middlewares.Authenticate, controllers.CreateEvent)
+	authenticated.PUT("/events/:id", controllers.UpdateEvent)
+	authenticated.DELETE("/events/:id", controllers.DeleteEvent)
 }
