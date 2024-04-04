@@ -33,7 +33,7 @@ Welcome to our Event Management System built with Gin, a high-performance HTTP w
 6. Run the application:
 
     ```bash
-    ./event-management
+    go run .
     ```
 
 ## Usage
