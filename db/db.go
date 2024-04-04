@@ -60,21 +60,20 @@ func createTables() {
 	}
 	fmt.Print("Success!\n")
 
-	createRegistrationsTable := `
-	CREATE TABLE IF NOT EXISTS registrations (
+	createRegistrationsTable := `CREATE TABLE IF NOT EXISTS registrations (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		event_id INTEGER NOT NULL,
 		user_id INTEGER NOT NULL,
 		FOREIGN KEY(event_id) REFERENCES events(id),
 		FOREIGN KEY(user_id) REFERENCES users(id)
-	`
+	)`
 
 	fmt.Print("Creating Registration table...")
 	_, err = DB.Exec(createRegistrationsTable)
 
 	if err != nil {
 		fmt.Print("Failed!\n")
-		panic("Unable to create Registration table")
+		panic(err)
 	}
 	fmt.Print("Success!\n")
 }

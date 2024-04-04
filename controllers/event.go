@@ -62,7 +62,7 @@ func UpdateEvent(context *gin.Context) {
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse ID"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse event ID"})
 		return
 	}
 
@@ -102,7 +102,7 @@ func DeleteEvent(context *gin.Context) {
 	eventId, err := strconv.ParseInt(context.Param("id"), 10, 64)
 
 	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse ID"})
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Unable to parse event ID"})
 		return
 	}
 
