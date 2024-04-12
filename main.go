@@ -15,6 +15,7 @@ func main() {
 
 	routes.EventRoutes(server)
 	routes.UserRoutes(server)
+	routes.AdminRoutes(server)
 
 	server.Run(":8080")
 }

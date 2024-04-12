@@ -10,6 +10,7 @@ type User struct {
 	ID       int64
 	Email    string `binding:"required"`
 	Password string `binding:"required"`
+	Role     string
 }
 
 func (u *User) Save() error {
@@ -41,6 +42,7 @@ func (u *User) Save() error {
 	}
 
 	u.ID = userId
+	u.Role = "user"
 	return nil
 }
 
@@ -51,7 +53,7 @@ func (u *User) ValidateCredentials() error {
 
 	var retrievedPassword string
 
-	err := row.Scan(&u.ID, &u.Email, &retrievedPassword)
+	err := row.Scan(&u.ID, &u.Email, &retrievedPassword, &u.Role)
 
 	if err != nil {
 		return errors.New("user not found")
@@ -64,4 +66,43 @@ func (u *User) ValidateCredentials() error {
 	}
 
 	return nil
+}
+
+func GetAllUsers() ([]User, error) {
+
+	query := "SELECT * FROM users"
+	rows, err := db.DB.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Email, &user.Password, &user.Role); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+func GetUserByID(id int64) (User, error) {
+
+	query := "SELECT * FROM users WHERE id = ?"
+	row := db.DB.QueryRow(query, id)
+
+	var user User
+	err := row.Scan(&user.ID, &user.Email, &user.Password, &user.Role)
+
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
 }
