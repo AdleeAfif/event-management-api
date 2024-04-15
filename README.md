@@ -114,6 +114,18 @@ Once the application is running, you can interact with the Event Management Syst
    - Method: DELETE
    - Description: Unregisters the logged-in user from the event with the specified ID.
 
+8. **See all users (ADMIN)**: 
+
+   - Endpoint: `/users`
+   - Method: GET
+   - Description: Display all the users available in the database.
+
+9. **Remove single user by ID (ADMIN)**: 
+
+   - Endpoint: `/users/:id`
+   - Method: Delete
+   - Description: Remove a user from the system permanently.  
+
 ## Contributing
 
 Contributions are welcome! If you find any bugs or want to add new features, feel free to open an issue or submit a pull request.
