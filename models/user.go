@@ -106,3 +106,23 @@ func GetUserByID(id int64) (User, error) {
 
 	return user, nil
 }
+
+func (u *User) Delete() error {
+	query := "DELETE FROM users WHERE id = ?"
+
+	stmnt, err := db.DB.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+
+	defer stmnt.Close()
+
+	_, err = stmnt.Exec(u.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

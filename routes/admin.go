@@ -9,4 +9,5 @@ import (
 
 func AdminRoutes(server *gin.Engine) {
 	server.GET("/users", middlewares.Authenticate, middlewares.IsAdmin, controllers.GetUsers)
+	server.DELETE("/users/:id", middlewares.Authenticate, middlewares.IsAdmin, controllers.DeleteUser)
 }
